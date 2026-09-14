@@ -61,10 +61,10 @@ function renderCategories() {
   categories.forEach((cat) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${escapeHtml(cat.name)}</td>
-      <td>${cat.section === 'drinks' ? 'Drinks' : 'Food'}</td>
-      <td>${cat.sortOrder ?? 0}</td>
-      <td>
+      <td data-label="Name">${escapeHtml(cat.name)}</td>
+      <td data-label="Section">${cat.section === 'drinks' ? 'Drinks' : 'Food'}</td>
+      <td data-label="Sort">${cat.sortOrder ?? 0}</td>
+      <td data-label="Actions">
         <button class="link-btn" data-action="edit-category" data-id="${cat._id}">Edit</button>
         <button class="link-btn danger" data-action="delete-category" data-id="${cat._id}">Delete</button>
       </td>`;
@@ -174,11 +174,11 @@ function renderItems() {
     if (!item.available) tr.classList.add('unavailable-row');
     const categoryName = item.category ? escapeHtml(item.category.name) : '—';
     tr.innerHTML = `
-      <td>${escapeHtml(item.name)}</td>
-      <td>${categoryName}</td>
-      <td>${formatPrice(item.price)}</td>
-      <td>${item.available ? 'Yes' : 'No'}</td>
-      <td>
+      <td data-label="Name">${escapeHtml(item.name)}</td>
+      <td data-label="Category">${categoryName}</td>
+      <td data-label="Price">${formatPrice(item.price)}</td>
+      <td data-label="Available">${item.available ? 'Yes' : 'No'}</td>
+      <td data-label="Actions">
         <button class="link-btn" data-action="edit-item" data-id="${item._id}">Edit</button>
         <button class="link-btn danger" data-action="delete-item" data-id="${item._id}">Delete</button>
       </td>`;

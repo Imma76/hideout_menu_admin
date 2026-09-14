@@ -160,6 +160,12 @@ button.link-btn.danger {
   color: var(--danger);
 }
 
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -208,4 +214,98 @@ button.link-btn.danger {
 
 .qr-output a {
   color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .site-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .admin-root {
+    padding: 1.25rem 1rem 2.5rem;
+  }
+
+  .tabs {
+    gap: 0.25rem;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 0.6rem 0.4rem;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .inline-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inline-form input[type="text"],
+  .inline-form input[type="number"],
+  .inline-form select,
+  .inline-form button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #qr-url {
+    min-width: 0;
+  }
+
+  .checkbox-label {
+    justify-content: flex-start;
+  }
+
+  .table-scroll {
+    overflow-x: visible;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table,
+  .data-table tbody,
+  .data-table tr,
+  .data-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .data-table tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .data-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .data-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.2rem;
+  }
+
+  .qr-output {
+    align-items: center;
+    text-align: center;
+  }
 }
