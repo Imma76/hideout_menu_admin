@@ -247,6 +247,9 @@ document.getElementById('item-list').addEventListener('click', async (e) => {
 });
 
 // ---------- QR Code ----------
+// Temporarily disabled along with the tab button, panel, and qrcodejs script
+// tag in index.html. Uncomment all four to re-enable.
+/*
 const qrForm = document.getElementById('qr-form');
 const qrUrlField = document.getElementById('qr-url');
 const qrOutput = document.getElementById('qr-output');
@@ -401,6 +404,7 @@ qrForm.addEventListener('submit', (e) => {
 });
 
 renderQr(qrUrlField.value);
+*/
 
 // ---------- Utils ----------
 function escapeHtml(str) {

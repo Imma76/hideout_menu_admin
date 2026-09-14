@@ -16,7 +16,9 @@
     <nav class="tabs">
       <button class="tab-btn active" data-tab="categories">Categories</button>
       <button class="tab-btn" data-tab="items">Menu Items</button>
+      <!-- QR Code tab temporarily disabled — see commented section below to re-enable.
       <button class="tab-btn" data-tab="qrcode">QR Code</button>
+      -->
     </nav>
 
     <section id="tab-categories" class="tab-panel active">
@@ -69,6 +71,9 @@
       </div>
     </section>
 
+    <!-- QR Code tab temporarily disabled — uncomment this section, the nav button
+         above, the qrcodejs script tag below, and the QR Code block in app.js to
+         re-enable.
     <section id="tab-qrcode" class="tab-panel">
       <h2>Table QR Code</h2>
       <p class="hint">
@@ -81,9 +86,10 @@
       </form>
       <div id="qr-output" class="qr-output"></div>
     </section>
+    -->
   </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> -->
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
