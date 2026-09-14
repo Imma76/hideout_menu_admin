@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hideout — Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <img class="logo" src="assets/logo.png" alt="The Hideout" />
+    <p class="tagline">Admin — manage categories, menu items &amp; the table QR code</p>
+  </header>
+
+  <main class="admin-root">
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="categories">Categories</button>
+      <button class="tab-btn" data-tab="items">Menu Items</button>
+      <button class="tab-btn" data-tab="qrcode">QR Code</button>
+    </nav>
+
+    <section id="tab-categories" class="tab-panel active">
+      <h2>Categories</h2>
+      <form id="category-form" class="inline-form">
+        <input type="hidden" id="category-id" />
+        <input type="text" id="category-name" placeholder="Category name" required />
+        <select id="category-section" required>
+          <option value="food">Food</option>
+          <option value="drinks">Drinks</option>
+        </select>
+        <input type="number" id="category-sort" placeholder="Sort order" value="0" />
+        <button type="submit" id="category-submit">Add Category</button>
+        <button type="button" id="category-cancel" class="secondary" hidden>Cancel</button>
+      </form>
+      <p class="msg" id="category-msg"></p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Name</th><th>Section</th><th>Sort</th><th></th></tr>
+        </thead>
+        <tbody id="category-list"></tbody>
+      </table>
+    </section>
+
+    <section id="tab-items" class="tab-panel">
+      <h2>Menu Items</h2>
+      <form id="item-form" class="inline-form item-form">
+        <input type="hidden" id="item-id" />
+        <input type="text" id="item-name" placeholder="Item name" required />
+        <input type="text" id="item-description" placeholder="Description" />
+        <input type="number" id="item-price" placeholder="Price" step="0.01" min="0" required />
+        <select id="item-category" required></select>
+        <label class="checkbox-label">
+          <input type="checkbox" id="item-available" checked />
+          Available
+        </label>
+        <button type="submit" id="item-submit">Add Item</button>
+        <button type="button" id="item-cancel" class="secondary" hidden>Cancel</button>
+      </form>
+      <p class="msg" id="item-msg"></p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Name</th><th>Category</th><th>Price</th><th>Available</th><th></th></tr>
+        </thead>
+        <tbody id="item-list"></tbody>
+      </table>
+    </section>
+
+    <section id="tab-qrcode" class="tab-panel">
+      <h2>Table QR Code</h2>
+      <p class="hint">
+        This QR code links straight to the public menu. Print it and place it on tables —
+        guests scan it, the menu site loads, and it always reflects whatever you save here.
+      </p>
+      <form id="qr-form" class="inline-form">
+        <input type="text" id="qr-url" />
+        <button type="submit">Generate</button>
+      </form>
+      <div id="qr-output" class="qr-output"></div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
