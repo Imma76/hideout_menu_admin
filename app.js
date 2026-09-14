@@ -253,38 +253,145 @@ const qrOutput = document.getElementById('qr-output');
 
 qrUrlField.value = FRONTEND_URL;
 
-function renderQr(url) {
-  qrOutput.innerHTML = '';
+function generateRawQrCanvas(url, size) {
+  return new Promise((resolve) => {
+    const hiddenHost = document.createElement('div');
+    hiddenHost.style.position = 'fixed';
+    hiddenHost.style.left = '-9999px';
+    document.body.appendChild(hiddenHost);
 
-  const qrContainer = document.createElement('div');
-  qrOutput.appendChild(qrContainer);
+    new QRCode(hiddenHost, {
+      text: url,
+      width: size,
+      height: size,
+      correctLevel: QRCode.CorrectLevel.M,
+    });
 
-  new QRCode(qrContainer, {
-    text: url,
-    width: 260,
-    height: 260,
-    correctLevel: QRCode.CorrectLevel.M,
+    // qrcodejs renders synchronously via <canvas> in modern browsers, but
+    // give it a tick in case it falls back to the <img> table renderer.
+    setTimeout(() => {
+      const canvas = hiddenHost.querySelector('canvas');
+      if (canvas) {
+        resolve(canvas);
+        document.body.removeChild(hiddenHost);
+        return;
+      }
+      const img = hiddenHost.querySelector('img');
+      const fallback = document.createElement('canvas');
+      fallback.width = size;
+      fallback.height = size;
+      fallback.getContext('2d').drawImage(img, 0, 0, size, size);
+      resolve(fallback);
+      document.body.removeChild(hiddenHost);
+    }, 50);
   });
+}
 
-  const urlText = document.createElement('div');
-  urlText.className = 'hint';
-  urlText.textContent = `Links to: ${url}`;
-  qrOutput.appendChild(urlText);
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
 
-  // qrcodejs renders either a <canvas> or an <img> inside the container
-  // depending on browser support; wait a tick so it's there before we link to it.
-  setTimeout(() => {
-    const canvas = qrContainer.querySelector('canvas');
-    const img = qrContainer.querySelector('img');
-    const dataUrl = canvas ? canvas.toDataURL('image/png') : img && img.src;
-    if (!dataUrl) return;
+function roundedRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+}
+
+async function buildShareableQrCard(url) {
+  const CARD_W = 1200;
+  const CARD_H = 1360;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = CARD_W;
+  canvas.height = CARD_H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#16130f';
+  ctx.fillRect(0, 0, CARD_W, CARD_H);
+
+  // Outer gold border
+  ctx.strokeStyle = '#d8a24a';
+  ctx.lineWidth = 6;
+  roundedRect(ctx, 20, 20, CARD_W - 40, CARD_H - 40, 24);
+  ctx.stroke();
+
+  // Logo
+  const [logo, qrCanvas] = await Promise.all([
+    loadImage('assets/logo.png'),
+    generateRawQrCanvas(url, 900),
+  ]);
+
+  const logoMaxWidth = CARD_W - 200;
+  const logoScale = Math.min(1, logoMaxWidth / logo.width);
+  const logoW = logo.width * logoScale;
+  const logoH = logo.height * logoScale;
+  const logoX = (CARD_W - logoW) / 2;
+  const logoY = 100;
+  ctx.drawImage(logo, logoX, logoY, logoW, logoH);
+
+  // Caption
+  ctx.fillStyle = '#d8a24a';
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 42px -apple-system, Helvetica, Arial, sans-serif';
+  ctx.fillText('SCAN TO VIEW OUR MENU', CARD_W / 2, logoY + logoH + 80);
+
+  // White panel behind QR for scan contrast
+  const qrSize = 760;
+  const qrX = (CARD_W - qrSize) / 2;
+  const qrY = logoY + logoH + 190;
+  const panelPadding = 40;
+  ctx.fillStyle = '#ffffff';
+  roundedRect(
+    ctx,
+    qrX - panelPadding,
+    qrY - panelPadding,
+    qrSize + panelPadding * 2,
+    qrSize + panelPadding * 2,
+    20,
+  );
+  ctx.fill();
+
+  ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+
+  return canvas;
+}
+
+async function renderQr(url) {
+  qrOutput.innerHTML = '<p class="hint">Generating…</p>';
+
+  try {
+    const card = await buildShareableQrCard(url);
+    qrOutput.innerHTML = '';
+
+    const preview = document.createElement('img');
+    preview.className = 'qr-card-preview';
+    preview.src = card.toDataURL('image/png');
+    qrOutput.appendChild(preview);
 
     const link = document.createElement('a');
     link.textContent = 'Download PNG';
-    link.download = 'hideout-menu-qr.png';
-    link.href = dataUrl;
-    qrOutput.insertBefore(link, urlText);
-  }, 50);
+    link.download = 'hideout-menu-qr-card.png';
+    link.href = preview.src;
+    qrOutput.appendChild(link);
+
+    const urlText = document.createElement('div');
+    urlText.className = 'hint';
+    urlText.textContent = `Links to: ${url}`;
+    qrOutput.appendChild(urlText);
+  } catch (err) {
+    console.error(err);
+    qrOutput.innerHTML = '<p class="hint">Could not generate QR code.</p>';
+  }
 }
 
 qrForm.addEventListener('submit', (e) => {
