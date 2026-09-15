@@ -221,6 +221,7 @@ categoryAddBtn.addEventListener("click", () => {
   resetCategoryForm();
   categoryDialogTitle.textContent = "Add Category";
   categoryDialog.showModal();
+  categoryDialog.focus();
 });
 
 function formatPrice(price) {
@@ -334,7 +335,7 @@ document
       categorySubmitBtn.textContent = "Save Category";
       categoryDialogTitle.textContent = "Edit Category";
       categoryDialog.showModal();
-      categoryNameField.focus();
+      categoryDialog.focus();
     } else if (btn.dataset.action === "delete-category") {
       const ok = await confirmAction(
         "Delete this category? Menu items in it will remain but lose their category.",
@@ -370,6 +371,7 @@ itemAddBtn.addEventListener("click", () => {
   resetItemForm();
   itemDialogTitle.textContent = "Add Item";
   itemDialog.showModal();
+  itemDialog.focus();
 });
 
 function renderItemCategoryOptions() {
@@ -505,7 +507,7 @@ document.getElementById("item-list").addEventListener("click", async (e) => {
     itemSubmitBtn.textContent = "Save Item";
     itemDialogTitle.textContent = "Edit Item";
     itemDialog.showModal();
-    itemNameField.focus();
+    itemDialog.focus();
   } else if (btn.dataset.action === "delete-item") {
     const ok = await confirmAction("Delete this menu item?");
     if (!ok) return;
