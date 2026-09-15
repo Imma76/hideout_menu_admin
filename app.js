@@ -605,7 +605,7 @@ async function buildShareableQrCard(url) {
 
   // Logo
   const [logo, qrCanvas] = await Promise.all([
-    loadImage('assets/logo.png'),
+    loadImage('assets/logo.webp'),
     generateRawQrCanvas(url, 900),
   ]);
 
