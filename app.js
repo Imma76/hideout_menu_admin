@@ -2,17 +2,21 @@ let categories = [];
 let items = [];
 
 // ---------- Tabs ----------
-document.querySelectorAll('.tab-btn').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-panel")
+      .forEach((p) => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
   });
 });
 
 // ---------- Auth ----------
-const AUTH_STORAGE_KEY = 'hideout-admin-auth';
+const AUTH_STORAGE_KEY = "hideout-admin-auth";
 
 function getAuthHeader() {
   return sessionStorage.getItem(AUTH_STORAGE_KEY);
@@ -31,24 +35,24 @@ function buildBasicAuthHeader(username, password) {
 }
 
 // ---------- Login ----------
-const loginRoot = document.getElementById('login-root');
-const adminRoot = document.getElementById('admin-root');
-const loginForm = document.getElementById('login-form');
-const loginUsernameField = document.getElementById('login-username');
-const loginPasswordField = document.getElementById('login-password');
-const logoutBtn = document.getElementById('logout-btn');
+const loginRoot = document.getElementById("login-root");
+const adminRoot = document.getElementById("admin-root");
+const loginForm = document.getElementById("login-form");
+const loginUsernameField = document.getElementById("login-username");
+const loginPasswordField = document.getElementById("login-password");
+const logoutBtn = document.getElementById("logout-btn");
 
-function showLogin(message = '') {
-  document.getElementById('loading-text').hidden = true;
+function showLogin(message = "") {
+  document.getElementById("loading-text").hidden = true;
   loginRoot.hidden = false;
   adminRoot.hidden = true;
   logoutBtn.hidden = true;
-  showMsg('login-msg', message, Boolean(message));
-  loginPasswordField.value = '';
+  showMsg("login-msg", message, Boolean(message));
+  loginPasswordField.value = "";
 }
 
 function showAdminDashboard() {
-  document.getElementById('loading-text').hidden = true;
+  document.getElementById("loading-text").hidden = true;
   loginRoot.hidden = true;
   adminRoot.hidden = false;
   logoutBtn.hidden = false;
@@ -65,7 +69,7 @@ async function checkCredentials(authHeader) {
   }
 }
 
-loginForm.addEventListener('submit', async (e) => {
+loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const username = loginUsernameField.value.trim();
   const password = loginPasswordField.value;
@@ -77,11 +81,11 @@ loginForm.addEventListener('submit', async (e) => {
     showAdminDashboard();
     await initDashboard();
   } else {
-    showMsg('login-msg', 'Invalid username or password.');
+    showMsg("login-msg", "Invalid username or password.");
   }
 });
 
-logoutBtn.addEventListener('click', () => {
+logoutBtn.addEventListener("click", () => {
   clearAuthHeader();
   loginForm.reset();
   showLogin();
@@ -89,7 +93,7 @@ logoutBtn.addEventListener('click', () => {
 
 // ---------- Helpers ----------
 async function api(path, options = {}) {
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = { "Content-Type": "application/json" };
   const authHeader = getAuthHeader();
   if (authHeader) headers.Authorization = authHeader;
 
@@ -100,13 +104,15 @@ async function api(path, options = {}) {
 
   if (res.status === 401) {
     clearAuthHeader();
-    showLogin('Session expired. Please log in again.');
-    throw new Error('Not authenticated');
+    showLogin("Session expired. Please log in again.");
+    throw new Error("Not authenticated");
   }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const message = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+    const message = Array.isArray(body.message)
+      ? body.message.join(", ")
+      : body.message;
     throw new Error(message || `Request failed (${res.status})`);
   }
   if (res.status === 204) return null;
@@ -116,50 +122,73 @@ async function api(path, options = {}) {
 function showMsg(id, text, isError = true) {
   const el = document.getElementById(id);
   el.textContent = text;
-  el.style.color = isError ? 'var(--danger)' : 'var(--accent)';
+  el.style.color = isError ? "var(--danger)" : "var(--accent)";
 }
 
 let toastTimeoutId = null;
 
 function showToast(text, isError = false) {
-  const toast = document.getElementById('toast');
+  const toast = document.getElementById("toast");
   clearTimeout(toastTimeoutId);
   toast.textContent = text;
-  toast.classList.toggle('toast-error', isError);
-  toast.classList.add('visible');
+  toast.classList.toggle("toast-error", isError);
+  toast.classList.add("visible");
   toast.hidden = false;
   toastTimeoutId = setTimeout(() => {
-    toast.classList.remove('visible');
+    toast.classList.remove("visible");
     setTimeout(() => {
       toast.hidden = true;
     }, 250);
   }, 2500);
 }
 
-// ---------- Categories ----------
-const categoryForm = document.getElementById('category-form');
-const categoryIdField = document.getElementById('category-id');
-const categoryNameField = document.getElementById('category-name');
-const categorySectionField = document.getElementById('category-section');
-const categorySortField = document.getElementById('category-sort');
-const categorySubmitBtn = document.getElementById('category-submit');
-const categoryCancelBtn = document.getElementById('category-cancel');
-
-function formatPrice(price) {
-  return `₦${Number(price).toLocaleString('en-NG')}`;
+// ---------- Modal helper ----------
+function setupModalBackdropClose(dialog) {
+  dialog.addEventListener("click", (e) => {
+    const rect = dialog.getBoundingClientRect();
+    const clickedInside =
+      rect.top <= e.clientY &&
+      e.clientY <= rect.bottom &&
+      rect.left <= e.clientX &&
+      e.clientX <= rect.right;
+    if (!clickedInside) dialog.close();
+  });
 }
 
-let categorySearchQuery = '';
+// ---------- Categories ----------
+const categoryForm = document.getElementById("category-form");
+const categoryIdField = document.getElementById("category-id");
+const categoryNameField = document.getElementById("category-name");
+const categorySectionField = document.getElementById("category-section");
+const categorySortField = document.getElementById("category-sort");
+const categorySubmitBtn = document.getElementById("category-submit");
+const categoryCancelBtn = document.getElementById("category-cancel");
+const categoryDialog = document.getElementById("category-dialog");
+const categoryDialogTitle = document.getElementById("category-dialog-title");
+const categoryAddBtn = document.getElementById("category-add-btn");
+setupModalBackdropClose(categoryDialog);
+
+categoryAddBtn.addEventListener("click", () => {
+  resetCategoryForm();
+  categoryDialogTitle.textContent = "Add Category";
+  categoryDialog.showModal();
+});
+
+function formatPrice(price) {
+  return `₦${Number(price).toLocaleString("en-NG")}`;
+}
+
+let categorySearchQuery = "";
 
 async function loadCategories() {
-  categories = await api('/categories');
+  categories = await api("/categories");
   renderCategories();
   renderItemCategoryOptions();
 }
 
 function renderCategories() {
-  const tbody = document.getElementById('category-list');
-  tbody.innerHTML = '';
+  const tbody = document.getElementById("category-list");
+  tbody.innerHTML = "";
   if (categories.length === 0) {
     tbody.innerHTML = '<tr><td colspan="3">No categories yet.</td></tr>';
     return;
@@ -167,17 +196,20 @@ function renderCategories() {
   const query = categorySearchQuery.trim().toLowerCase();
   const filtered = query
     ? categories.filter((cat) => {
-        const sectionLabel = cat.section === 'drinks' ? 'drinks' : 'food';
-        return cat.name.toLowerCase().includes(query) || sectionLabel.includes(query);
+        const sectionLabel = cat.section === "drinks" ? "drinks" : "food";
+        return (
+          cat.name.toLowerCase().includes(query) || sectionLabel.includes(query)
+        );
       })
     : categories;
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3">No categories match your search.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="3">No categories match your search.</td></tr>';
     return;
   }
   filtered.forEach((cat) => {
-    const tr = document.createElement('tr');
-    const sectionLabel = cat.section === 'drinks' ? 'Drinks' : 'Food';
+    const tr = document.createElement("tr");
+    const sectionLabel = cat.section === "drinks" ? "Drinks" : "Food";
     tr.innerHTML = `
       <td class="cell-primary">${escapeHtml(cat.name)}</td>
       <td class="cell-meta">${sectionLabel} · Sort ${cat.sortOrder ?? 0}</td>
@@ -189,7 +221,7 @@ function renderCategories() {
   });
 }
 
-categoryForm.addEventListener('submit', async (e) => {
+categoryForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = categoryIdField.value;
   const payload = {
@@ -199,99 +231,129 @@ categoryForm.addEventListener('submit', async (e) => {
   };
   try {
     if (id) {
-      await api(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      showToast('Category updated.');
+      await api(`/categories/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      showToast("Category updated.");
     } else {
-      await api('/categories', { method: 'POST', body: JSON.stringify(payload) });
-      showToast('Category added.');
+      await api("/categories", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      showToast("Category added.");
     }
+    categoryDialog.close();
     resetCategoryForm();
     await loadCategories();
   } catch (err) {
-    showMsg('category-msg', err.message);
+    showMsg("category-msg", err.message);
   }
 });
 
-categoryCancelBtn.addEventListener('click', resetCategoryForm);
+categoryCancelBtn.addEventListener("click", () => {
+  categoryDialog.close();
+  resetCategoryForm();
+});
 
-document.getElementById('category-search').addEventListener('input', (e) => {
+document.getElementById("category-search").addEventListener("input", (e) => {
   categorySearchQuery = e.target.value;
   renderCategories();
 });
 
 function resetCategoryForm() {
-  categoryIdField.value = '';
+  categoryIdField.value = "";
   categoryForm.reset();
-  categorySectionField.value = 'food';
+  categorySectionField.value = "food";
   categorySortField.value = 0;
-  categorySubmitBtn.textContent = 'Add Category';
-  categoryCancelBtn.hidden = true;
+  categorySubmitBtn.textContent = "Add Category";
+  showMsg("category-msg", "");
 }
 
-document.getElementById('category-list').addEventListener('click', async (e) => {
-  const btn = e.target.closest('button');
-  if (!btn) return;
-  const id = btn.dataset.id;
-  if (btn.dataset.action === 'edit-category') {
-    const cat = categories.find((c) => c._id === id);
-    categoryIdField.value = cat._id;
-    categoryNameField.value = cat.name;
-    categorySectionField.value = cat.section ?? 'food';
-    categorySortField.value = cat.sortOrder ?? 0;
-    categorySubmitBtn.textContent = 'Save Category';
-    categoryCancelBtn.hidden = false;
-    categoryForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    categoryNameField.focus();
-  } else if (btn.dataset.action === 'delete-category') {
-    if (!confirm('Delete this category? Menu items in it will remain but lose their category.')) return;
-    try {
-      await api(`/categories/${id}`, { method: 'DELETE' });
-      showToast('Category deleted.');
-      await loadCategories();
-      await loadItems();
-    } catch (err) {
-      showToast(err.message, true);
+document
+  .getElementById("category-list")
+  .addEventListener("click", async (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === "edit-category") {
+      const cat = categories.find((c) => c._id === id);
+      categoryIdField.value = cat._id;
+      categoryNameField.value = cat.name;
+      categorySectionField.value = cat.section ?? "food";
+      categorySortField.value = cat.sortOrder ?? 0;
+      categorySubmitBtn.textContent = "Save Category";
+      categoryDialogTitle.textContent = "Edit Category";
+      categoryDialog.showModal();
+      categoryNameField.focus();
+    } else if (btn.dataset.action === "delete-category") {
+      if (
+        !confirm(
+          "Delete this category? Menu items in it will remain but lose their category.",
+        )
+      )
+        return;
+      try {
+        await api(`/categories/${id}`, { method: "DELETE" });
+        showToast("Category deleted.");
+        await loadCategories();
+        await loadItems();
+      } catch (err) {
+        showToast(err.message, true);
+      }
     }
-  }
-});
+  });
 
 // ---------- Menu Items ----------
-const itemForm = document.getElementById('item-form');
-const itemIdField = document.getElementById('item-id');
-const itemNameField = document.getElementById('item-name');
-const itemDescField = document.getElementById('item-description');
-const itemPriceField = document.getElementById('item-price');
-const itemCategoryField = document.getElementById('item-category');
-const itemAvailableField = document.getElementById('item-available');
-const itemSubmitBtn = document.getElementById('item-submit');
-const itemCancelBtn = document.getElementById('item-cancel');
+const itemForm = document.getElementById("item-form");
+const itemIdField = document.getElementById("item-id");
+const itemNameField = document.getElementById("item-name");
+const itemDescField = document.getElementById("item-description");
+const itemPriceField = document.getElementById("item-price");
+const itemCategoryField = document.getElementById("item-category");
+const itemAvailableField = document.getElementById("item-available");
+const itemSubmitBtn = document.getElementById("item-submit");
+const itemCancelBtn = document.getElementById("item-cancel");
+const itemDialog = document.getElementById("item-dialog");
+const itemDialogTitle = document.getElementById("item-dialog-title");
+const itemAddBtn = document.getElementById("item-add-btn");
+setupModalBackdropClose(itemDialog);
+
+itemAddBtn.addEventListener("click", () => {
+  resetItemForm();
+  itemDialogTitle.textContent = "Add Item";
+  itemDialog.showModal();
+});
 
 function renderItemCategoryOptions() {
   const groups = [
-    { section: 'food', label: 'Food' },
-    { section: 'drinks', label: 'Drinks' },
+    { section: "food", label: "Food" },
+    { section: "drinks", label: "Drinks" },
   ];
   itemCategoryField.innerHTML = groups
     .map(({ section, label }) => {
       const options = categories
         .filter((cat) => cat.section === section)
-        .map((cat) => `<option value="${cat._id}">${escapeHtml(cat.name)}</option>`)
-        .join('');
-      return options ? `<optgroup label="${label}">${options}</optgroup>` : '';
+        .map(
+          (cat) =>
+            `<option value="${cat._id}">${escapeHtml(cat.name)}</option>`,
+        )
+        .join("");
+      return options ? `<optgroup label="${label}">${options}</optgroup>` : "";
     })
-    .join('');
+    .join("");
 }
 
-let itemSearchQuery = '';
+let itemSearchQuery = "";
 
 async function loadItems() {
-  items = await api('/menu-items');
+  items = await api("/menu-items");
   renderItems();
 }
 
 function renderItems() {
-  const tbody = document.getElementById('item-list');
-  tbody.innerHTML = '';
+  const tbody = document.getElementById("item-list");
+  tbody.innerHTML = "";
   if (items.length === 0) {
     tbody.innerHTML = '<tr><td colspan="3">No menu items yet.</td></tr>';
     return;
@@ -299,8 +361,10 @@ function renderItems() {
   const query = itemSearchQuery.trim().toLowerCase();
   const filtered = query
     ? items.filter((item) => {
-        const categoryName = item.category ? item.category.name.toLowerCase() : '';
-        const description = (item.description || '').toLowerCase();
+        const categoryName = item.category
+          ? item.category.name.toLowerCase()
+          : "";
+        const description = (item.description || "").toLowerCase();
         return (
           item.name.toLowerCase().includes(query) ||
           categoryName.includes(query) ||
@@ -309,14 +373,15 @@ function renderItems() {
       })
     : items;
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3">No items match your search.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="3">No items match your search.</td></tr>';
     return;
   }
   filtered.forEach((item) => {
-    const tr = document.createElement('tr');
-    if (!item.available) tr.classList.add('unavailable-row');
-    const categoryName = item.category ? escapeHtml(item.category.name) : '—';
-    const availability = item.available ? 'Available' : 'Unavailable';
+    const tr = document.createElement("tr");
+    if (!item.available) tr.classList.add("unavailable-row");
+    const categoryName = item.category ? escapeHtml(item.category.name) : "—";
+    const availability = item.available ? "Available" : "Unavailable";
     tr.innerHTML = `
       <td class="cell-primary">${escapeHtml(item.name)}</td>
       <td class="cell-meta">${categoryName} · ${formatPrice(item.price)} · ${availability}</td>
@@ -328,7 +393,7 @@ function renderItems() {
   });
 }
 
-itemForm.addEventListener('submit', async (e) => {
+itemForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = itemIdField.value;
   const payload = {
@@ -340,55 +405,65 @@ itemForm.addEventListener('submit', async (e) => {
   };
   try {
     if (id) {
-      await api(`/menu-items/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      showToast('Item updated.');
+      await api(`/menu-items/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      showToast("Item updated.");
     } else {
-      await api('/menu-items', { method: 'POST', body: JSON.stringify(payload) });
-      showToast('Item added.');
+      await api("/menu-items", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      showToast("Item added.");
     }
+    itemDialog.close();
     resetItemForm();
     await loadItems();
   } catch (err) {
-    showMsg('item-msg', err.message);
+    showMsg("item-msg", err.message);
   }
 });
 
-itemCancelBtn.addEventListener('click', resetItemForm);
+itemCancelBtn.addEventListener("click", () => {
+  itemDialog.close();
+  resetItemForm();
+});
 
-document.getElementById('item-search').addEventListener('input', (e) => {
+document.getElementById("item-search").addEventListener("input", (e) => {
   itemSearchQuery = e.target.value;
   renderItems();
 });
 
 function resetItemForm() {
-  itemIdField.value = '';
+  itemIdField.value = "";
   itemForm.reset();
   itemAvailableField.checked = true;
-  itemSubmitBtn.textContent = 'Add Item';
-  itemCancelBtn.hidden = true;
+  itemSubmitBtn.textContent = "Add Item";
+  showMsg("item-msg", "");
 }
 
-document.getElementById('item-list').addEventListener('click', async (e) => {
-  const btn = e.target.closest('button');
+document.getElementById("item-list").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
   if (!btn) return;
   const id = btn.dataset.id;
-  if (btn.dataset.action === 'edit-item') {
+  if (btn.dataset.action === "edit-item") {
     const item = items.find((i) => i._id === id);
     itemIdField.value = item._id;
     itemNameField.value = item.name;
-    itemDescField.value = item.description || '';
+    itemDescField.value = item.description || "";
     itemPriceField.value = item.price;
-    itemCategoryField.value = item.category ? item.category._id : '';
+    itemCategoryField.value = item.category ? item.category._id : "";
     itemAvailableField.checked = item.available;
-    itemSubmitBtn.textContent = 'Save Item';
-    itemCancelBtn.hidden = false;
-    itemForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    itemSubmitBtn.textContent = "Save Item";
+    itemDialogTitle.textContent = "Edit Item";
+    itemDialog.showModal();
     itemNameField.focus();
-  } else if (btn.dataset.action === 'delete-item') {
-    if (!confirm('Delete this menu item?')) return;
+  } else if (btn.dataset.action === "delete-item") {
+    if (!confirm("Delete this menu item?")) return;
     try {
-      await api(`/menu-items/${id}`, { method: 'DELETE' });
-      showToast('Item deleted.');
+      await api(`/menu-items/${id}`, { method: "DELETE" });
+      showToast("Item deleted.");
       await loadItems();
     } catch (err) {
       showToast(err.message, true);
@@ -558,9 +633,17 @@ renderQr(qrUrlField.value);
 
 // ---------- Utils ----------
 function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  }[c]));
+  return String(str).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
 }
 
 // ---------- Init ----------
@@ -569,7 +652,7 @@ async function initDashboard() {
     await loadCategories();
     await loadItems();
   } catch (err) {
-    showMsg('category-msg', `Could not reach backend: ${err.message}`);
+    showMsg("category-msg", `Could not reach backend: ${err.message}`);
   }
 }
 

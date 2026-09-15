@@ -48,31 +48,39 @@
       --></nav>
 
       <section id="tab-categories" class="tab-panel active">
-        <h2>Categories</h2>
-        <form id="category-form" class="inline-form">
-          <input type="hidden" id="category-id" />
-          <input
-            type="text"
-            id="category-name"
-            placeholder="Category name"
-            required
-          />
-          <select id="category-section" required>
-            <option value="food">Food</option>
-            <option value="drinks">Drinks</option>
-          </select>
-          <input
-            type="number"
-            id="category-sort"
-            placeholder="Sort order"
-            value="0"
-          />
-          <button type="submit" id="category-submit">Add Category</button>
-          <button type="button" id="category-cancel" class="secondary" hidden>
-            Cancel
-          </button>
-        </form>
-        <p class="msg" id="category-msg"></p>
+        <div class="section-header">
+          <h2>Categories</h2>
+          <button type="button" id="category-add-btn">Add Category</button>
+        </div>
+        <dialog id="category-dialog" class="modal">
+          <form id="category-form" class="inline-form">
+            <h3 id="category-dialog-title">Add Category</h3>
+            <input type="hidden" id="category-id" />
+            <input
+              type="text"
+              id="category-name"
+              placeholder="Category name"
+              required
+            />
+            <select id="category-section" required>
+              <option value="food">Food</option>
+              <option value="drinks">Drinks</option>
+            </select>
+            <input
+              type="number"
+              id="category-sort"
+              placeholder="Sort order"
+              value="0"
+            />
+            <p class="msg" id="category-msg"></p>
+            <div class="modal-actions">
+              <button type="submit" id="category-submit">Add Category</button>
+              <button type="button" id="category-cancel" class="secondary">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </dialog>
         <input
           type="search"
           id="category-search"
@@ -94,30 +102,38 @@
       </section>
 
       <section id="tab-items" class="tab-panel">
-        <h2>Menu Items</h2>
-        <form id="item-form" class="inline-form item-form">
-          <input type="hidden" id="item-id" />
-          <input type="text" id="item-name" placeholder="Item name" required />
-          <input type="text" id="item-description" placeholder="Description" />
-          <input
-            type="number"
-            id="item-price"
-            placeholder="Price"
-            step="0.01"
-            min="0"
-            required
-          />
-          <select id="item-category" required></select>
-          <label class="checkbox-label">
-            <input type="checkbox" id="item-available" checked />
-            Available
-          </label>
-          <button type="submit" id="item-submit">Add Item</button>
-          <button type="button" id="item-cancel" class="secondary" hidden>
-            Cancel
-          </button>
-        </form>
-        <p class="msg" id="item-msg"></p>
+        <div class="section-header">
+          <h2>Menu Items</h2>
+          <button type="button" id="item-add-btn">Add Item</button>
+        </div>
+        <dialog id="item-dialog" class="modal">
+          <form id="item-form" class="inline-form item-form">
+            <h3 id="item-dialog-title">Add Item</h3>
+            <input type="hidden" id="item-id" />
+            <input type="text" id="item-name" placeholder="Item name" required />
+            <input type="text" id="item-description" placeholder="Description" />
+            <input
+              type="number"
+              id="item-price"
+              placeholder="Price"
+              step="0.01"
+              min="0"
+              required
+            />
+            <select id="item-category" required></select>
+            <label class="checkbox-label">
+              <input type="checkbox" id="item-available" checked />
+              Available
+            </label>
+            <p class="msg" id="item-msg"></p>
+            <div class="modal-actions">
+              <button type="submit" id="item-submit">Add Item</button>
+              <button type="button" id="item-cancel" class="secondary">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </dialog>
         <input
           type="search"
           id="item-search"
