@@ -124,6 +124,21 @@ h2 {
   justify-content: flex-end;
 }
 
+.button-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.confirm-modal {
+  max-width: 420px;
+}
+
+.confirm-modal #confirm-message {
+  margin: 0 0 1.25rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
 .hint {
   color: var(--muted);
   font-size: 0.9rem;

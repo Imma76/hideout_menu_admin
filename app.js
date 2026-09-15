@@ -155,6 +155,55 @@ function setupModalBackdropClose(dialog) {
   });
 }
 
+function isInsideRect(dialog, e) {
+  const rect = dialog.getBoundingClientRect();
+  return (
+    rect.top <= e.clientY &&
+    e.clientY <= rect.bottom &&
+    rect.left <= e.clientX &&
+    e.clientX <= rect.right
+  );
+}
+
+// ---------- Confirm dialog ----------
+const confirmDialog = document.getElementById("confirm-dialog");
+const confirmMessage = document.getElementById("confirm-message");
+const confirmOkBtn = document.getElementById("confirm-ok");
+const confirmCancelBtn = document.getElementById("confirm-cancel");
+
+function confirmAction(message) {
+  return new Promise((resolve) => {
+    confirmMessage.textContent = message;
+
+    function finish(result) {
+      confirmOkBtn.removeEventListener("click", onOk);
+      confirmCancelBtn.removeEventListener("click", onCancel);
+      confirmDialog.removeEventListener("cancel", onCancelDialog);
+      confirmDialog.removeEventListener("click", onBackdropClick);
+      confirmDialog.close();
+      resolve(result);
+    }
+    function onOk() {
+      finish(true);
+    }
+    function onCancel() {
+      finish(false);
+    }
+    function onCancelDialog() {
+      finish(false);
+    }
+    function onBackdropClick(e) {
+      if (!isInsideRect(confirmDialog, e)) finish(false);
+    }
+
+    confirmOkBtn.addEventListener("click", onOk);
+    confirmCancelBtn.addEventListener("click", onCancel);
+    confirmDialog.addEventListener("cancel", onCancelDialog);
+    confirmDialog.addEventListener("click", onBackdropClick);
+    confirmDialog.showModal();
+  });
+}
+
 // ---------- Categories ----------
 const categoryForm = document.getElementById("category-form");
 const categoryIdField = document.getElementById("category-id");
@@ -287,12 +336,10 @@ document
       categoryDialog.showModal();
       categoryNameField.focus();
     } else if (btn.dataset.action === "delete-category") {
-      if (
-        !confirm(
-          "Delete this category? Menu items in it will remain but lose their category.",
-        )
-      )
-        return;
+      const ok = await confirmAction(
+        "Delete this category? Menu items in it will remain but lose their category.",
+      );
+      if (!ok) return;
       try {
         await api(`/categories/${id}`, { method: "DELETE" });
         showToast("Category deleted.");
@@ -460,7 +507,8 @@ document.getElementById("item-list").addEventListener("click", async (e) => {
     itemDialog.showModal();
     itemNameField.focus();
   } else if (btn.dataset.action === "delete-item") {
-    if (!confirm("Delete this menu item?")) return;
+    const ok = await confirmAction("Delete this menu item?");
+    if (!ok) return;
     try {
       await api(`/menu-items/${id}`, { method: "DELETE" });
       showToast("Item deleted.");
