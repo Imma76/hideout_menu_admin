@@ -55,16 +55,16 @@ function renderCategories() {
   const tbody = document.getElementById('category-list');
   tbody.innerHTML = '';
   if (categories.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4">No categories yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3">No categories yet.</td></tr>';
     return;
   }
   categories.forEach((cat) => {
     const tr = document.createElement('tr');
+    const sectionLabel = cat.section === 'drinks' ? 'Drinks' : 'Food';
     tr.innerHTML = `
-      <td data-label="Name">${escapeHtml(cat.name)}</td>
-      <td data-label="Section">${cat.section === 'drinks' ? 'Drinks' : 'Food'}</td>
-      <td data-label="Sort">${cat.sortOrder ?? 0}</td>
-      <td data-label="Actions">
+      <td class="cell-primary">${escapeHtml(cat.name)}</td>
+      <td class="cell-meta">${sectionLabel} · Sort ${cat.sortOrder ?? 0}</td>
+      <td class="cell-actions">
         <button class="link-btn" data-action="edit-category" data-id="${cat._id}">Edit</button>
         <button class="link-btn danger" data-action="delete-category" data-id="${cat._id}">Delete</button>
       </td>`;
@@ -166,19 +166,18 @@ function renderItems() {
   const tbody = document.getElementById('item-list');
   tbody.innerHTML = '';
   if (items.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5">No menu items yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3">No menu items yet.</td></tr>';
     return;
   }
   items.forEach((item) => {
     const tr = document.createElement('tr');
     if (!item.available) tr.classList.add('unavailable-row');
     const categoryName = item.category ? escapeHtml(item.category.name) : '—';
+    const availability = item.available ? 'Available' : 'Unavailable';
     tr.innerHTML = `
-      <td data-label="Name">${escapeHtml(item.name)}</td>
-      <td data-label="Category">${categoryName}</td>
-      <td data-label="Price">${formatPrice(item.price)}</td>
-      <td data-label="Available">${item.available ? 'Yes' : 'No'}</td>
-      <td data-label="Actions">
+      <td class="cell-primary">${escapeHtml(item.name)}</td>
+      <td class="cell-meta">${categoryName} · ${formatPrice(item.price)} · ${availability}</td>
+      <td class="cell-actions">
         <button class="link-btn" data-action="edit-item" data-id="${item._id}">Edit</button>
         <button class="link-btn danger" data-action="delete-item" data-id="${item._id}">Delete</button>
       </td>`;

@@ -189,6 +189,10 @@ button.link-btn.danger {
   background: var(--surface-2);
 }
 
+.data-table .cell-meta {
+  color: var(--muted);
+}
+
 .data-table tbody tr:last-child td {
   border-bottom: none;
 }
@@ -311,28 +315,29 @@ button.link-btn.danger {
   }
 
   .data-table td {
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border-bottom: 1px solid var(--border);
+    padding: 0;
+    border-bottom: none;
   }
 
-  .data-table td:last-child {
-    border-bottom: none;
+  .data-table td.cell-primary {
+    padding: 0.85rem 1rem 0.15rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .data-table td.cell-meta {
+    padding: 0 1rem 0.85rem;
+    font-size: 0.88rem;
+  }
+
+  .data-table td.cell-actions {
+    padding: 0.65rem 1rem;
+    border-top: 1px solid var(--border);
     display: flex;
     gap: 1.25rem;
   }
 
-  .data-table td[data-label]::before {
-    content: attr(data-label);
-    display: block;
-    font-size: 0.72rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 0.25rem;
-  }
-
-  .data-table td:last-child button.link-btn {
+  .data-table td.cell-actions button.link-btn {
     padding: 0.4rem 0;
     font-size: 1rem;
   }
