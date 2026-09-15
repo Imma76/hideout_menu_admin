@@ -1,77 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hideout — Admin Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header class="site-header">
-    <img class="logo" src="assets/logo.png" alt="The Hideout" />
-    <p class="tagline">Admin — manage categories, menu items &amp; the table QR code</p>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hideout — Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <img class="logo" src="assets/logo.png" alt="The Hideout" />
+      <p class="tagline">Admin — manage categories and menu items</p>
+    </header>
 
-  <main class="admin-root">
-    <nav class="tabs">
-      <button class="tab-btn active" data-tab="categories">Categories</button>
-      <button class="tab-btn" data-tab="items">Menu Items</button>
-      <!-- QR Code tab temporarily disabled — see commented section below to re-enable.
+    <main class="admin-root">
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="categories">Categories</button>
+        <button class="tab-btn" data-tab="items">Menu Items</button>
+        <!-- QR Code tab temporarily disabled — see commented section below to re-enable.
       <button class="tab-btn" data-tab="qrcode">QR Code</button>
-      -->
-    </nav>
+      --></nav>
 
-    <section id="tab-categories" class="tab-panel active">
-      <h2>Categories</h2>
-      <form id="category-form" class="inline-form">
-        <input type="hidden" id="category-id" />
-        <input type="text" id="category-name" placeholder="Category name" required />
-        <select id="category-section" required>
-          <option value="food">Food</option>
-          <option value="drinks">Drinks</option>
-        </select>
-        <input type="number" id="category-sort" placeholder="Sort order" value="0" />
-        <button type="submit" id="category-submit">Add Category</button>
-        <button type="button" id="category-cancel" class="secondary" hidden>Cancel</button>
-      </form>
-      <p class="msg" id="category-msg"></p>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr><th>Name</th><th>Details</th><th></th></tr>
-          </thead>
-          <tbody id="category-list"></tbody>
-        </table>
-      </div>
-    </section>
+      <section id="tab-categories" class="tab-panel active">
+        <h2>Categories</h2>
+        <form id="category-form" class="inline-form">
+          <input type="hidden" id="category-id" />
+          <input
+            type="text"
+            id="category-name"
+            placeholder="Category name"
+            required
+          />
+          <select id="category-section" required>
+            <option value="food">Food</option>
+            <option value="drinks">Drinks</option>
+          </select>
+          <input
+            type="number"
+            id="category-sort"
+            placeholder="Sort order"
+            value="0"
+          />
+          <button type="submit" id="category-submit">Add Category</button>
+          <button type="button" id="category-cancel" class="secondary" hidden>
+            Cancel
+          </button>
+        </form>
+        <p class="msg" id="category-msg"></p>
+        <input
+          type="search"
+          id="category-search"
+          class="search-field"
+          placeholder="Search categories…"
+        />
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Details</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="category-list"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <section id="tab-items" class="tab-panel">
-      <h2>Menu Items</h2>
-      <form id="item-form" class="inline-form item-form">
-        <input type="hidden" id="item-id" />
-        <input type="text" id="item-name" placeholder="Item name" required />
-        <input type="text" id="item-description" placeholder="Description" />
-        <input type="number" id="item-price" placeholder="Price" step="0.01" min="0" required />
-        <select id="item-category" required></select>
-        <label class="checkbox-label">
-          <input type="checkbox" id="item-available" checked />
-          Available
-        </label>
-        <button type="submit" id="item-submit">Add Item</button>
-        <button type="button" id="item-cancel" class="secondary" hidden>Cancel</button>
-      </form>
-      <p class="msg" id="item-msg"></p>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr><th>Name</th><th>Details</th><th></th></tr>
-          </thead>
-          <tbody id="item-list"></tbody>
-        </table>
-      </div>
-    </section>
+      <section id="tab-items" class="tab-panel">
+        <h2>Menu Items</h2>
+        <form id="item-form" class="inline-form item-form">
+          <input type="hidden" id="item-id" />
+          <input type="text" id="item-name" placeholder="Item name" required />
+          <input type="text" id="item-description" placeholder="Description" />
+          <input
+            type="number"
+            id="item-price"
+            placeholder="Price"
+            step="0.01"
+            min="0"
+            required
+          />
+          <select id="item-category" required></select>
+          <label class="checkbox-label">
+            <input type="checkbox" id="item-available" checked />
+            Available
+          </label>
+          <button type="submit" id="item-submit">Add Item</button>
+          <button type="button" id="item-cancel" class="secondary" hidden>
+            Cancel
+          </button>
+        </form>
+        <p class="msg" id="item-msg"></p>
+        <input
+          type="search"
+          id="item-search"
+          class="search-field"
+          placeholder="Search menu items…"
+        />
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Details</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="item-list"></tbody>
+          </table>
+        </div>
+      </section>
 
-    <!-- QR Code tab temporarily disabled — uncomment this section, the nav button
+      <!-- QR Code tab temporarily disabled — uncomment this section, the nav button
          above, the qrcodejs script tag below, and the QR Code block in app.js to
          re-enable.
     <section id="tab-qrcode" class="tab-panel">
@@ -86,11 +126,10 @@
       </form>
       <div id="qr-output" class="qr-output"></div>
     </section>
-    -->
-  </main>
+    --></main>
 
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> -->
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-</body>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

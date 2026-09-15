@@ -45,6 +45,8 @@ function formatPrice(price) {
   return `₦${Number(price).toLocaleString('en-NG')}`;
 }
 
+let categorySearchQuery = '';
+
 async function loadCategories() {
   categories = await api('/categories');
   renderCategories();
@@ -58,7 +60,18 @@ function renderCategories() {
     tbody.innerHTML = '<tr><td colspan="3">No categories yet.</td></tr>';
     return;
   }
-  categories.forEach((cat) => {
+  const query = categorySearchQuery.trim().toLowerCase();
+  const filtered = query
+    ? categories.filter((cat) => {
+        const sectionLabel = cat.section === 'drinks' ? 'drinks' : 'food';
+        return cat.name.toLowerCase().includes(query) || sectionLabel.includes(query);
+      })
+    : categories;
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3">No categories match your search.</td></tr>';
+    return;
+  }
+  filtered.forEach((cat) => {
     const tr = document.createElement('tr');
     const sectionLabel = cat.section === 'drinks' ? 'Drinks' : 'Food';
     tr.innerHTML = `
@@ -96,6 +109,11 @@ categoryForm.addEventListener('submit', async (e) => {
 });
 
 categoryCancelBtn.addEventListener('click', resetCategoryForm);
+
+document.getElementById('category-search').addEventListener('input', (e) => {
+  categorySearchQuery = e.target.value;
+  renderCategories();
+});
 
 function resetCategoryForm() {
   categoryIdField.value = '';
@@ -157,6 +175,8 @@ function renderItemCategoryOptions() {
     .join('');
 }
 
+let itemSearchQuery = '';
+
 async function loadItems() {
   items = await api('/menu-items');
   renderItems();
@@ -169,7 +189,23 @@ function renderItems() {
     tbody.innerHTML = '<tr><td colspan="3">No menu items yet.</td></tr>';
     return;
   }
-  items.forEach((item) => {
+  const query = itemSearchQuery.trim().toLowerCase();
+  const filtered = query
+    ? items.filter((item) => {
+        const categoryName = item.category ? item.category.name.toLowerCase() : '';
+        const description = (item.description || '').toLowerCase();
+        return (
+          item.name.toLowerCase().includes(query) ||
+          categoryName.includes(query) ||
+          description.includes(query)
+        );
+      })
+    : items;
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3">No items match your search.</td></tr>';
+    return;
+  }
+  filtered.forEach((item) => {
     const tr = document.createElement('tr');
     if (!item.available) tr.classList.add('unavailable-row');
     const categoryName = item.category ? escapeHtml(item.category.name) : '—';
@@ -211,6 +247,11 @@ itemForm.addEventListener('submit', async (e) => {
 });
 
 itemCancelBtn.addEventListener('click', resetItemForm);
+
+document.getElementById('item-search').addEventListener('input', (e) => {
+  itemSearchQuery = e.target.value;
+  renderItems();
+});
 
 function resetItemForm() {
   itemIdField.value = '';
