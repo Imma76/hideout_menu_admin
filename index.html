@@ -15,7 +15,9 @@
       </button>
     </header>
 
-    <main class="login-root" id="login-root">
+    <p class="loading-text" id="loading-text">Loading…</p>
+
+    <main class="login-root" id="login-root" hidden>
       <form id="login-form" class="inline-form login-form">
         <h2>Admin Login</h2>
         <input
@@ -152,6 +154,8 @@
       <div id="qr-output" class="qr-output"></div>
     </section>
     --></main>
+
+    <div id="toast" class="toast" hidden></div>
 
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> -->
     <script src="config.js"></script>

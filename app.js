@@ -39,6 +39,7 @@ const loginPasswordField = document.getElementById('login-password');
 const logoutBtn = document.getElementById('logout-btn');
 
 function showLogin(message = '') {
+  document.getElementById('loading-text').hidden = true;
   loginRoot.hidden = false;
   adminRoot.hidden = true;
   logoutBtn.hidden = true;
@@ -47,6 +48,7 @@ function showLogin(message = '') {
 }
 
 function showAdminDashboard() {
+  document.getElementById('loading-text').hidden = true;
   loginRoot.hidden = true;
   adminRoot.hidden = false;
   logoutBtn.hidden = false;
@@ -117,6 +119,23 @@ function showMsg(id, text, isError = true) {
   el.style.color = isError ? 'var(--danger)' : 'var(--accent)';
 }
 
+let toastTimeoutId = null;
+
+function showToast(text, isError = false) {
+  const toast = document.getElementById('toast');
+  clearTimeout(toastTimeoutId);
+  toast.textContent = text;
+  toast.classList.toggle('toast-error', isError);
+  toast.classList.add('visible');
+  toast.hidden = false;
+  toastTimeoutId = setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => {
+      toast.hidden = true;
+    }, 250);
+  }, 2500);
+}
+
 // ---------- Categories ----------
 const categoryForm = document.getElementById('category-form');
 const categoryIdField = document.getElementById('category-id');
@@ -181,10 +200,10 @@ categoryForm.addEventListener('submit', async (e) => {
   try {
     if (id) {
       await api(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      showMsg('category-msg', 'Category updated.', false);
+      showToast('Category updated.');
     } else {
       await api('/categories', { method: 'POST', body: JSON.stringify(payload) });
-      showMsg('category-msg', 'Category added.', false);
+      showToast('Category added.');
     }
     resetCategoryForm();
     await loadCategories();
@@ -221,14 +240,17 @@ document.getElementById('category-list').addEventListener('click', async (e) => 
     categorySortField.value = cat.sortOrder ?? 0;
     categorySubmitBtn.textContent = 'Save Category';
     categoryCancelBtn.hidden = false;
+    categoryForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    categoryNameField.focus();
   } else if (btn.dataset.action === 'delete-category') {
     if (!confirm('Delete this category? Menu items in it will remain but lose their category.')) return;
     try {
       await api(`/categories/${id}`, { method: 'DELETE' });
+      showToast('Category deleted.');
       await loadCategories();
       await loadItems();
     } catch (err) {
-      showMsg('category-msg', err.message);
+      showToast(err.message, true);
     }
   }
 });
@@ -319,10 +341,10 @@ itemForm.addEventListener('submit', async (e) => {
   try {
     if (id) {
       await api(`/menu-items/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
-      showMsg('item-msg', 'Item updated.', false);
+      showToast('Item updated.');
     } else {
       await api('/menu-items', { method: 'POST', body: JSON.stringify(payload) });
-      showMsg('item-msg', 'Item added.', false);
+      showToast('Item added.');
     }
     resetItemForm();
     await loadItems();
@@ -360,13 +382,16 @@ document.getElementById('item-list').addEventListener('click', async (e) => {
     itemAvailableField.checked = item.available;
     itemSubmitBtn.textContent = 'Save Item';
     itemCancelBtn.hidden = false;
+    itemForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    itemNameField.focus();
   } else if (btn.dataset.action === 'delete-item') {
     if (!confirm('Delete this menu item?')) return;
     try {
       await api(`/menu-items/${id}`, { method: 'DELETE' });
+      showToast('Item deleted.');
       await loadItems();
     } catch (err) {
-      showMsg('item-msg', err.message);
+      showToast(err.message, true);
     }
   }
 });
