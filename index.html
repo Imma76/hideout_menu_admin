@@ -10,9 +10,34 @@
     <header class="site-header">
       <img class="logo" src="assets/logo.png" alt="The Hideout" />
       <p class="tagline">Admin — manage categories and menu items</p>
+      <button type="button" id="logout-btn" class="secondary logout-btn" hidden>
+        Log out
+      </button>
     </header>
 
-    <main class="admin-root">
+    <main class="login-root" id="login-root">
+      <form id="login-form" class="inline-form login-form">
+        <h2>Admin Login</h2>
+        <input
+          type="text"
+          id="login-username"
+          placeholder="Username"
+          autocomplete="username"
+          required
+        />
+        <input
+          type="password"
+          id="login-password"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit">Log in</button>
+        <p class="msg" id="login-msg"></p>
+      </form>
+    </main>
+
+    <main class="admin-root" id="admin-root" hidden>
       <nav class="tabs">
         <button class="tab-btn active" data-tab="categories">Categories</button>
         <button class="tab-btn" data-tab="items">Menu Items</button>

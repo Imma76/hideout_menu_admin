@@ -11,12 +11,97 @@ document.querySelectorAll('.tab-btn').forEach((btn) => {
   });
 });
 
+// ---------- Auth ----------
+const AUTH_STORAGE_KEY = 'hideout-admin-auth';
+
+function getAuthHeader() {
+  return sessionStorage.getItem(AUTH_STORAGE_KEY);
+}
+
+function setAuthHeader(value) {
+  sessionStorage.setItem(AUTH_STORAGE_KEY, value);
+}
+
+function clearAuthHeader() {
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
+function buildBasicAuthHeader(username, password) {
+  return `Basic ${btoa(`${username}:${password}`)}`;
+}
+
+// ---------- Login ----------
+const loginRoot = document.getElementById('login-root');
+const adminRoot = document.getElementById('admin-root');
+const loginForm = document.getElementById('login-form');
+const loginUsernameField = document.getElementById('login-username');
+const loginPasswordField = document.getElementById('login-password');
+const logoutBtn = document.getElementById('logout-btn');
+
+function showLogin(message = '') {
+  loginRoot.hidden = false;
+  adminRoot.hidden = true;
+  logoutBtn.hidden = true;
+  showMsg('login-msg', message, Boolean(message));
+  loginPasswordField.value = '';
+}
+
+function showAdminDashboard() {
+  loginRoot.hidden = true;
+  adminRoot.hidden = false;
+  logoutBtn.hidden = false;
+}
+
+async function checkCredentials(authHeader) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/check`, {
+      headers: { Authorization: authHeader },
+    });
+    return res.ok;
+  } catch (err) {
+    return false;
+  }
+}
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = loginUsernameField.value.trim();
+  const password = loginPasswordField.value;
+  const authHeader = buildBasicAuthHeader(username, password);
+
+  const ok = await checkCredentials(authHeader);
+  if (ok) {
+    setAuthHeader(authHeader);
+    showAdminDashboard();
+    await initDashboard();
+  } else {
+    showMsg('login-msg', 'Invalid username or password.');
+  }
+});
+
+logoutBtn.addEventListener('click', () => {
+  clearAuthHeader();
+  loginForm.reset();
+  showLogin();
+});
+
 // ---------- Helpers ----------
 async function api(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  const authHeader = getAuthHeader();
+  if (authHeader) headers.Authorization = authHeader;
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
+
+  if (res.status === 401) {
+    clearAuthHeader();
+    showLogin('Session expired. Please log in again.');
+    throw new Error('Not authenticated');
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     const message = Array.isArray(body.message) ? body.message.join(', ') : body.message;
@@ -454,11 +539,22 @@ function escapeHtml(str) {
 }
 
 // ---------- Init ----------
-(async function init() {
+async function initDashboard() {
   try {
     await loadCategories();
     await loadItems();
   } catch (err) {
     showMsg('category-msg', `Could not reach backend: ${err.message}`);
   }
+}
+
+(async function bootstrap() {
+  const stored = getAuthHeader();
+  if (stored && (await checkCredentials(stored))) {
+    showAdminDashboard();
+    await initDashboard();
+    return;
+  }
+  clearAuthHeader();
+  showLogin();
 })();
