@@ -390,7 +390,7 @@ function renderItemCategoryOptions() {
   const groups = [
     { section: "food", label: "Food" },
     { section: "drinks", label: "Drinks" },
-    { section: "smoke", label: "Smoke" },
+    { section: "ciga", label: "Ciga" },
   ];
   itemCategoryField.innerHTML = groups
     .map(({ section, label }) => {
