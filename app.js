@@ -41,6 +41,7 @@ const loginForm = document.getElementById("login-form");
 const loginUsernameField = document.getElementById("login-username");
 const loginPasswordField = document.getElementById("login-password");
 const logoutBtn = document.getElementById("logout-btn");
+const loginSubmitBtn = document.getElementById("login-submit");
 
 function showLogin(message = "") {
   document.getElementById("loading-text").hidden = true;
@@ -75,13 +76,22 @@ loginForm.addEventListener("submit", async (e) => {
   const password = loginPasswordField.value;
   const authHeader = buildBasicAuthHeader(username, password);
 
-  const ok = await checkCredentials(authHeader);
-  if (ok) {
-    setAuthHeader(authHeader);
-    showAdminDashboard();
-    await initDashboard();
-  } else {
-    showMsg("login-msg", "Invalid username or password.");
+  showMsg("login-msg", "");
+  loginSubmitBtn.disabled = true;
+  loginSubmitBtn.textContent = "Logging in…";
+
+  try {
+    const ok = await checkCredentials(authHeader);
+    if (ok) {
+      setAuthHeader(authHeader);
+      showAdminDashboard();
+      await initDashboard();
+    } else {
+      showMsg("login-msg", "Invalid username or password.");
+    }
+  } finally {
+    loginSubmitBtn.disabled = false;
+    loginSubmitBtn.textContent = "Log in";
   }
 });
 
