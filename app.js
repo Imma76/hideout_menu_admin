@@ -256,9 +256,9 @@ function renderCategories() {
   const query = categorySearchQuery.trim().toLowerCase();
   const filtered = query
     ? categories.filter((cat) => {
-        const sectionLabel = cat.section === "drinks" ? "drinks" : "food";
         return (
-          cat.name.toLowerCase().includes(query) || sectionLabel.includes(query)
+          cat.name.toLowerCase().includes(query) ||
+          (cat.section ?? "food").includes(query)
         );
       })
     : categories;
@@ -269,7 +269,9 @@ function renderCategories() {
   }
   filtered.forEach((cat) => {
     const tr = document.createElement("tr");
-    const sectionLabel = cat.section === "drinks" ? "Drinks" : "Food";
+    const sectionLabel = cat.section
+      ? cat.section.charAt(0).toUpperCase() + cat.section.slice(1)
+      : "Food";
     tr.innerHTML = `
       <td class="cell-primary">${escapeHtml(cat.name)}</td>
       <td class="cell-meta">${sectionLabel} · Sort ${cat.sortOrder ?? 0}</td>
@@ -388,6 +390,7 @@ function renderItemCategoryOptions() {
   const groups = [
     { section: "food", label: "Food" },
     { section: "drinks", label: "Drinks" },
+    { section: "smoke", label: "Smoke" },
   ];
   itemCategoryField.innerHTML = groups
     .map(({ section, label }) => {
