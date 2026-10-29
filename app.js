@@ -377,7 +377,52 @@ const itemCancelBtn = document.getElementById("item-cancel");
 const itemDialog = document.getElementById("item-dialog");
 const itemDialogTitle = document.getElementById("item-dialog-title");
 const itemAddBtn = document.getElementById("item-add-btn");
+const itemFeaturedField = document.getElementById("item-featured");
+const itemImageUrlField = document.getElementById("item-image-url");
+const itemPhotoInput = document.getElementById("item-photo");
+const itemPhotoPreview = document.getElementById("item-photo-preview");
+const itemPhotoRemove = document.getElementById("item-photo-remove");
+const itemPhotoStatus = document.getElementById("item-photo-status");
+const PHOTO_HINT = "PNG with a transparent background looks best.";
 setupModalBackdropClose(itemDialog);
+
+function setItemPhoto(url) {
+  itemImageUrlField.value = url || "";
+  itemPhotoPreview.innerHTML = url
+    ? `<img src="${escapeHtml(url)}" alt="" />`
+    : "No photo";
+  itemPhotoRemove.hidden = !url;
+}
+
+itemPhotoInput.addEventListener("change", async () => {
+  const file = itemPhotoInput.files[0];
+  if (!file) return;
+  const body = new FormData();
+  body.append("file", file);
+  itemPhotoStatus.textContent = "Uploading…";
+  itemSubmitBtn.disabled = true;
+  try {
+    const res = await fetch(`${API_BASE_URL}/uploads/image`, {
+      method: "POST",
+      headers: { Authorization: getAuthHeader() },
+      body,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || `Upload failed (${res.status})`);
+    setItemPhoto(data.url);
+    itemPhotoStatus.textContent = "Photo uploaded. Save the item to keep it.";
+  } catch (err) {
+    itemPhotoStatus.textContent = err.message;
+  } finally {
+    itemSubmitBtn.disabled = false;
+    itemPhotoInput.value = "";
+  }
+});
+
+itemPhotoRemove.addEventListener("click", () => {
+  setItemPhoto("");
+  itemPhotoStatus.textContent = "Photo removed. Save the item to keep this change.";
+});
 
 itemAddBtn.addEventListener("click", () => {
   resetItemForm();
@@ -391,6 +436,7 @@ function renderItemCategoryOptions() {
     { section: "food", label: "Food" },
     { section: "drinks", label: "Drinks" },
     { section: "ciga", label: "Ciga" },
+    { section: "club", label: "Club" },
   ];
   itemCategoryField.innerHTML = groups
     .map(({ section, label }) => {
@@ -444,9 +490,13 @@ function renderItems() {
     if (!item.available) tr.classList.add("unavailable-row");
     const categoryName = item.category ? escapeHtml(item.category.name) : "—";
     const availability = item.available ? "Available" : "Unavailable";
+    const thumb = item.imageUrl
+      ? `<img class="item-thumb" src="${escapeHtml(item.imageUrl)}" alt="" loading="lazy" />`
+      : "";
+    const featured = item.featured ? ' · <span class="badge">Featured</span>' : "";
     tr.innerHTML = `
-      <td class="cell-primary">${escapeHtml(item.name)}</td>
-      <td class="cell-meta">${categoryName} · ${formatPrice(item.price)} · ${availability}</td>
+      <td class="cell-primary">${thumb}${escapeHtml(item.name)}</td>
+      <td class="cell-meta">${categoryName} · ${formatPrice(item.price)} · ${availability}${featured}</td>
       <td class="cell-actions">
         <button class="link-btn" data-action="edit-item" data-id="${item._id}">Edit</button>
         <button class="link-btn danger" data-action="delete-item" data-id="${item._id}">Delete</button>
@@ -464,6 +514,8 @@ itemForm.addEventListener("submit", async (e) => {
     price: Number(itemPriceField.value),
     category: itemCategoryField.value,
     available: itemAvailableField.checked,
+    featured: itemFeaturedField.checked,
+    imageUrl: itemImageUrlField.value,
   };
   try {
     if (id) {
@@ -501,6 +553,9 @@ function resetItemForm() {
   itemIdField.value = "";
   itemForm.reset();
   itemAvailableField.checked = true;
+  itemFeaturedField.checked = false;
+  setItemPhoto("");
+  itemPhotoStatus.textContent = PHOTO_HINT;
   itemSubmitBtn.textContent = "Add Item";
   showMsg("item-msg", "");
 }
@@ -517,6 +572,9 @@ document.getElementById("item-list").addEventListener("click", async (e) => {
     itemPriceField.value = item.price;
     itemCategoryField.value = item.category ? item.category._id : "";
     itemAvailableField.checked = item.available;
+    itemFeaturedField.checked = !!item.featured;
+    setItemPhoto(item.imageUrl);
+    itemPhotoStatus.textContent = PHOTO_HINT;
     itemSubmitBtn.textContent = "Save Item";
     itemDialogTitle.textContent = "Edit Item";
     itemDialog.showModal();

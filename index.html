@@ -66,6 +66,7 @@
               <option value="food">Food</option>
               <option value="drinks">Drinks</option>
               <option value="ciga">Ciga</option>
+              <option value="club">Club</option>
             </select>
             <input
               type="number"
@@ -122,9 +123,23 @@
               required
             />
             <select id="item-category" required></select>
+            <div class="photo-field">
+              <div class="photo-preview" id="item-photo-preview">No photo</div>
+              <div class="photo-actions">
+                <label class="secondary file-btn" for="item-photo">Upload photo</label>
+                <input type="file" id="item-photo" accept="image/png,image/jpeg,image/webp,image/avif" hidden />
+                <button type="button" class="link-btn danger" id="item-photo-remove" hidden>Remove photo</button>
+                <p class="hint photo-hint" id="item-photo-status">PNG with a transparent background looks best.</p>
+              </div>
+              <input type="hidden" id="item-image-url" />
+            </div>
             <label class="checkbox-label">
               <input type="checkbox" id="item-available" checked />
               Available
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="item-featured" />
+              Featured (club signature bottles)
             </label>
             <p class="msg" id="item-msg"></p>
             <div class="modal-actions">
