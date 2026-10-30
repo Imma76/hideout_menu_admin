@@ -18,6 +18,29 @@ document.querySelectorAll(".tab-btn").forEach((btn) => {
 // ---------- Auth ----------
 const AUTH_STORAGE_KEY = "hideout-admin-auth";
 
+// Which menu sections this dashboard shows: the logged-in account's sections
+// (empty = all), narrowed to the club when opened at /club/admin.
+const ALL_SECTIONS = ["food", "drinks", "ciga", "club"];
+const CLUB_ONLY_URL = location.pathname.startsWith("/club/admin");
+let visibleSections = ALL_SECTIONS;
+
+function applyScope(accountSections) {
+  visibleSections = accountSections && accountSections.length ? accountSections : ALL_SECTIONS;
+  if (CLUB_ONLY_URL) visibleSections = visibleSections.filter((s) => s === "club");
+  const clubOnly = visibleSections.length === 1 && visibleSections[0] === "club";
+  document.title = clubOnly ? "Hideout — Club Admin" : "Hideout — Admin Dashboard";
+  document.querySelector(".site-header .logo").src = clubOnly ? "assets/club-logo.webp" : "assets/logo.webp";
+  document.querySelector(".tagline").textContent = clubOnly
+    ? "Club admin — manage club drinks, food and categories"
+    : "Admin — manage categories and menu items";
+  [...categorySectionField.options].forEach((o) => {
+    o.hidden = o.disabled = !visibleSections.includes(o.value);
+  });
+  categorySectionField.hidden = visibleSections.length === 1;
+}
+
+const inScope = (section) => visibleSections.includes(section ?? "food");
+
 function getAuthHeader() {
   return sessionStorage.getItem(AUTH_STORAGE_KEY);
 }
@@ -59,14 +82,15 @@ function showAdminDashboard() {
   logoutBtn.hidden = false;
 }
 
+// Returns the account ({ username, sections }) or null.
 async function checkCredentials(authHeader) {
   try {
     const res = await fetch(`${API_BASE_URL}/auth/check`, {
       headers: { Authorization: authHeader },
     });
-    return res.ok;
+    return res.ok ? await res.json() : null;
   } catch (err) {
-    return false;
+    return null;
   }
 }
 
@@ -81,9 +105,10 @@ loginForm.addEventListener("submit", async (e) => {
   loginSubmitBtn.textContent = "Logging in…";
 
   try {
-    const ok = await checkCredentials(authHeader);
-    if (ok) {
+    const account = await checkCredentials(authHeader);
+    if (account) {
       setAuthHeader(authHeader);
+      applyScope(account.sections);
       showAdminDashboard();
       await initDashboard();
     } else {
@@ -241,7 +266,7 @@ function formatPrice(price) {
 let categorySearchQuery = "";
 
 async function loadCategories() {
-  categories = await api("/categories");
+  categories = (await api("/categories")).filter((cat) => inScope(cat.section));
   renderCategories();
   renderItemCategoryOptions();
 }
@@ -326,7 +351,7 @@ document.getElementById("category-search").addEventListener("input", (e) => {
 function resetCategoryForm() {
   categoryIdField.value = "";
   categoryForm.reset();
-  categorySectionField.value = "food";
+  categorySectionField.value = visibleSections[0];
   categorySortField.value = 0;
   categorySubmitBtn.textContent = "Add Category";
   showMsg("category-msg", "");
@@ -385,7 +410,6 @@ const itemPhotoRemove = document.getElementById("item-photo-remove");
 const itemPhotoStatus = document.getElementById("item-photo-status");
 const PHOTO_HINT = "PNG with a transparent background looks best.";
 setupModalBackdropClose(itemDialog);
-
 function setItemPhoto(url) {
   itemImageUrlField.value = url || "";
   itemPhotoPreview.innerHTML = url
@@ -437,7 +461,7 @@ function renderItemCategoryOptions() {
     { section: "drinks", label: "Drinks" },
     { section: "ciga", label: "Ciga" },
     { section: "club", label: "Club" },
-  ];
+  ].filter(({ section }) => inScope(section));
   itemCategoryField.innerHTML = groups
     .map(({ section, label }) => {
       const options = categories
@@ -455,7 +479,10 @@ function renderItemCategoryOptions() {
 let itemSearchQuery = "";
 
 async function loadItems() {
-  items = await api("/menu-items");
+  // Items whose category was deleted only show to admins who see every section.
+  items = (await api("/menu-items")).filter((item) =>
+    item.category ? inScope(item.category.section) : visibleSections === ALL_SECTIONS,
+  );
   renderItems();
 }
 
@@ -779,7 +806,9 @@ async function initDashboard() {
 
 (async function bootstrap() {
   const stored = getAuthHeader();
-  if (stored && (await checkCredentials(stored))) {
+  const account = stored ? await checkCredentials(stored) : null;
+  if (account) {
+    applyScope(account.sections);
     showAdminDashboard();
     await initDashboard();
     return;
