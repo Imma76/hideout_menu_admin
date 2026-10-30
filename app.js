@@ -33,6 +33,7 @@ function applyScope(accountSections) {
   document.querySelector(".tagline").textContent = clubOnly
     ? "Club admin — manage club drinks, food and categories"
     : "Admin — manage categories and menu items";
+  document.querySelector("#login-form h2").textContent = clubOnly ? "Club Admin Login" : "Admin Login";
   [...categorySectionField.options].forEach((o) => {
     o.hidden = o.disabled = !visibleSections.includes(o.value);
   });
@@ -122,6 +123,7 @@ loginForm.addEventListener("submit", async (e) => {
 
 logoutBtn.addEventListener("click", () => {
   clearAuthHeader();
+  applyScope([]);
   loginForm.reset();
   showLogin();
 });
@@ -805,6 +807,7 @@ async function initDashboard() {
 }
 
 (async function bootstrap() {
+  applyScope([]); // brand the login screen from the URL before anyone signs in
   const stored = getAuthHeader();
   const account = stored ? await checkCredentials(stored) : null;
   if (account) {
